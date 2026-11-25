@@ -41,7 +41,7 @@
           <h2 class="text-xl font-semibold tracking-normal">{{ messages.storefront.products }}</h2>
           <p class="mt-1 text-sm text-muted-foreground">{{ query ? t(messages.storefront.relatedProducts, { count: visibleProducts.length }) : messages.storefront.fallbackSubtitle }}</p>
         </div>
-        <div v-if="data.categories.length" class="flex max-w-full gap-2 overflow-x-auto pb-1" :aria-label="messages.storefront.categories">
+        <div v-if="data.categories.length" class="hidden max-w-full gap-2 overflow-x-auto pb-1 sm:flex" :aria-label="messages.storefront.categories">
           <Button size="sm" :variant="selectedCategory === null ? 'default' : 'outline'" @click="selectedCategory = null">{{ messages.storefront.all }}</Button>
           <Button
             v-for="category in data.categories"
@@ -55,23 +55,63 @@
         </div>
       </div>
 
-      <div v-if="visibleProducts.length" class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <article v-for="product in visibleProducts" :key="product.id" class="group overflow-hidden rounded-lg border bg-card transition-shadow hover:shadow-lg">
-          <a :href="`/product/${product.slug}`" class="block">
-            <div class="relative aspect-4/3 overflow-hidden bg-muted">
-              <img :src="product.coverImage || defaultProductImage" :alt="productName(product)" class="size-full object-cover transition-transform duration-300 group-hover:scale-105" />
-              <Badge variant="secondary" class="absolute left-2 top-2 bg-background/90 text-xs backdrop-blur">{{ productCategoryName(product) || messages.storefront.products }}</Badge>
-            </div>
-            <div class="flex min-h-28 flex-col p-3">
-              <h3 class="line-clamp-2 text-sm font-semibold tracking-normal">{{ productName(product) }}</h3>
-              <p v-if="productSubtitle(product)" class="mt-1 line-clamp-1 text-xs text-muted-foreground">{{ productSubtitle(product) }}</p>
-              <div class="mt-auto flex items-end justify-between gap-2 pt-3">
-                <span :class="stockClass(product)" class="text-xs">{{ stockLabel(product) }}</span>
-                <span class="shrink-0 text-lg font-semibold tabular-nums">{{ product.price }}<CurrencyHint /></span>
+      <div v-if="data.categories.length" class="mt-4 sm:hidden">
+        <Select :model-value="selectedCategory === null ? 'all' : String(selectedCategory)" @update:model-value="onCategoryChange">
+          <SelectTrigger class="w-full" :aria-label="messages.storefront.categories">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">{{ messages.storefront.all }}</SelectItem>
+            <SelectItem v-for="category in data.categories" :key="category.id" :value="String(category.id)">{{ categoryLabel(category) }}</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div v-if="groupedProducts.length" class="mt-6 space-y-8">
+        <section v-for="group in groupedProducts" :key="group.category?.id || 'none'" class="space-y-3">
+          <Badge class="px-3 py-1 text-lg font-bold bg-[#45c3d9] hover:bg-[#45c3d9]/90 text-white rounded-md border-none tracking-wider">{{ group.category ? categoryLabel(group.category) : messages.storefront.products }}</Badge>
+
+          <div class="hidden overflow-hidden rounded-lg border bg-card shadow-sm sm:block">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead class="h-11 text-sm font-medium text-foreground">{{ messages.storefront.columnProduct }}</TableHead>
+                  <TableHead class="h-11 w-32 text-sm font-medium text-foreground">{{ messages.storefront.columnStock }}</TableHead>
+                  <TableHead class="h-11 w-40 text-sm font-medium text-foreground">{{ messages.storefront.columnPrice }}</TableHead>
+                  <TableHead class="h-11 w-28 text-center text-sm font-medium text-foreground">{{ messages.storefront.columnAction }}</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                <TableRow v-for="product in group.products" :key="product.id">
+                  <TableCell class="py-4"><a :href="`/product/${product.slug}`" class="text-base font-normal hover:text-[#45c3d9]">{{ productName(product) }}</a></TableCell>
+                  <TableCell class="py-4"><span :class="stockClass(product)" class="text-base font-medium">{{ stockLabel(product) }}</span></TableCell>
+                  <TableCell class="py-4 text-base font-bold tabular-nums">{{ product.price }}<CurrencyHint /></TableCell>
+                  <TableCell class="py-4 text-right">
+                    <Button as-child size="sm" variant="outline" class="rounded-[4px] text-sm border-[#45c3d9] text-[#45c3d9] hover:bg-[#45c3d9] hover:text-white">
+                      <a :href="`/product/${product.slug}`">{{ messages.storefront.viewDetails }}</a>
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </div>
+
+          <div class="grid gap-4 sm:hidden">
+            <article v-for="product in group.products" :key="product.id" class="rounded-lg border bg-card p-4 shadow-sm">
+              <a :href="`/product/${product.slug}`" class="block">
+                <h3 class="break-words text-base font-medium tracking-normal">{{ productName(product) }}</h3>
+                <p v-if="productSubtitle(product)" class="mt-1 break-words text-sm text-muted-foreground">{{ productSubtitle(product) }}</p>
+              </a>
+              <div class="mt-4 flex items-center justify-between gap-2">
+                <span :class="stockClass(product)" class="rounded-full bg-muted px-2.5 py-1 text-xs">{{ stockLabel(product) }}</span>
+                <span class="shrink-0 text-lg font-bold tabular-nums">{{ product.price }}<CurrencyHint /></span>
               </div>
-            </div>
-          </a>
-        </article>
+              <Button as-child size="sm" variant="outline" class="mt-4 w-full rounded-[4px] text-sm border-[#45c3d9] text-[#45c3d9] hover:bg-[#45c3d9] hover:text-white">
+                <a :href="`/product/${product.slug}`">{{ messages.storefront.viewDetails }}</a>
+              </Button>
+            </article>
+          </div>
+        </section>
       </div>
 
       <div v-else class="mt-6 border border-dashed bg-background px-6 py-16 text-center">
@@ -101,7 +141,6 @@
 import { computed, onMounted, ref } from "vue";
 import { InfoIcon, PackageOpenIcon, SearchIcon } from "@lucide/vue";
 import logoUrl from "@/assets/logo.svg?url";
-import defaultProductImage from "@/assets/product_img.jpg?url";
 import { useData } from "vike-vue/useData";
 import { usePageContext } from "vike-vue/usePageContext";
 import PublicNav from "@/components/storefront/PublicNav.vue";
@@ -110,6 +149,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import type { Data } from "./+data.server";
 import CurrencyHint from "@/components/storefront/CurrencyHint.vue";
 import { useStorefrontPreferences } from "@/lib/storefront-preferences";
@@ -159,14 +200,41 @@ onMounted(() => {
 const brandLogoUrl = computed(() => site.logo || logoUrl);
 function productName(product: Product) { return pickLocalizedText(product.name, locale.value); }
 function productSubtitle(product: Product) { return product.subtitle ? pickLocalizedOptionalText(product.subtitle, locale.value) : null; }
-function productCategoryName(product: Product) { return product.categoryName ? pickLocalizedOptionalText(product.categoryName, locale.value) : null; }
 function categoryLabel(category: Category) { return pickLocalizedText(category.name, locale.value); }
+function onCategoryChange(value: unknown) {
+  if (typeof value !== "string") return;
+  selectedCategory.value = value === "all" ? null : Number(value);
+}
 const visibleProducts = computed(() => {
   const keyword = query.value.trim().toLowerCase();
   return data.products.filter((product) =>
     (selectedCategory.value === null || product.categoryId === selectedCategory.value)
     && (!keyword || productName(product).toLowerCase().includes(keyword) || (productSubtitle(product) ?? "").toLowerCase().includes(keyword)),
   );
+});
+
+const groupedProducts = computed(() => {
+  const groups: { category: Category | null; products: Product[] }[] = [];
+
+  const categoriesToShow = selectedCategory.value !== null
+    ? data.categories.filter((category) => category.id === selectedCategory.value)
+    : data.categories;
+
+  for (const category of categoriesToShow) {
+    const products = visibleProducts.value.filter((product) => product.categoryId === category.id);
+    if (products.length > 0) {
+      groups.push({ category, products });
+    }
+  }
+
+  if (selectedCategory.value === null) {
+    const uncategorizedProducts = visibleProducts.value.filter((product) => !product.categoryId);
+    if (uncategorizedProducts.length > 0) {
+      groups.push({ category: null, products: uncategorizedProducts });
+    }
+  }
+
+  return groups;
 });
 
 function stockLabel(product: Product) {

@@ -2,6 +2,7 @@ const messages = {
   languageName: "简体中文",
   nav: {
     main: "主导航",
+    menu: "菜单",
     home: "返回首页",
     myOrders: "我的订单",
     orderLookup: "订单查询",
@@ -28,12 +29,17 @@ const messages = {
     categories: "商品分类",
     all: "全部",
     stockAvailable: "库存充足",
-    stockCount: "库存 {count}",
+    stockCount: "库存 {count} 件",
     outOfStock: "暂时缺货",
     noProducts: "暂无可购买商品",
     noProductsDescription: "商品上架后会显示在这里。",
     noticeTitle: "站点公告",
     contactSupport: "联系客服",
+    columnProduct: "商品名称",
+    columnStock: "库存",
+    columnPrice: "价格",
+    columnAction: "操作",
+    viewDetails: "查看详情",
   },
   auth: {
     login: {

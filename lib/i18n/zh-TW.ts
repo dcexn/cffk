@@ -4,6 +4,7 @@ export default {
   languageName: "繁體中文",
   nav: {
     main: "主導覽",
+    menu: "選單",
     home: "返回首頁",
     myOrders: "我的訂單",
     orderLookup: "訂單查詢",
@@ -30,12 +31,17 @@ export default {
     categories: "商品分類",
     all: "全部",
     stockAvailable: "庫存充足",
-    stockCount: "庫存 {count}",
+    stockCount: "庫存 {count} 件",
     outOfStock: "暫時缺貨",
     noProducts: "暫無可購買商品",
     noProductsDescription: "商品上架後會顯示在這裡。",
     noticeTitle: "站點公告",
     contactSupport: "聯絡客服",
+    columnProduct: "商品名稱",
+    columnStock: "庫存",
+    columnPrice: "價格",
+    columnAction: "操作",
+    viewDetails: "查看詳情",
   },
   auth: {
     login: {

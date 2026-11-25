@@ -4,13 +4,9 @@
     <div class="mt-16 flex min-h-0 flex-1 flex-col overflow-y-auto">
       <section class="mx-auto grid w-full max-w-6xl flex-1 gap-8 px-5 pb-10 pt-10 lg:grid-cols-[minmax(0,1fr)_22rem]">
         <article>
-          <div class="overflow-hidden rounded-xl border bg-muted"><img :src="data.coverImage || defaultProductImage" :alt="productName" class="max-h-96 w-full object-cover" /></div>
-          <div class="mt-5">
-            <Badge variant="secondary">{{ productCategoryName || messages.productCheckout.defaultCategory }}</Badge>
-            <h1 class="mt-3 text-2xl font-semibold tracking-normal sm:text-3xl">{{ productName }}</h1>
-            <p v-if="productSubtitle" class="mt-2 text-sm leading-6 text-muted-foreground">{{ productSubtitle }}</p>
-          </div>
-          <section v-if="productDescription" class="mt-6 rounded-xl border bg-card p-5 sm:p-6">
+          <section v-if="productDescription" class="rounded-xl border bg-card p-5 sm:p-6">
+            <h1 class="text-2xl font-semibold tracking-normal sm:text-3xl">{{ productName }}</h1>
+            <hr class="my-4 border-t border-border" />
             <h2 class="text-base font-semibold">{{ messages.productCheckout.productDetails }}</h2>
             <!-- `description` is sanitized server-side by sanitizeProductDescription(). -->
             <!-- eslint-disable vue/no-v-html -->
@@ -123,7 +119,6 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 
-import defaultProductImage from "@/assets/product_img.jpg?url";
 import { clearLocalAddresses, getLocalAddresses, saveLocalAddress, type LocalAddress } from "@/lib/local-addresses";
 import CurrencyHint from "@/components/storefront/CurrencyHint.vue";
 import { useStorefrontPreferences } from "@/lib/storefront-preferences";
